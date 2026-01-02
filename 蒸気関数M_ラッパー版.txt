@@ -1,0 +1,250 @@
+'蒸気性状DLL使用 - ラッパー版
+'全てのDLL関数をPrivate宣言し、Public VBA関数でラップ
+'Excel 2010以降専用（VBA7）
+Option Explicit
+
+'内部DLL宣言 - セルから直接呼び出さない
+Private Declare PtrSafe Function STM_GetDllVer_ Lib "Steam97a.dll" Alias "STM_GetDllVer" (ByVal n As Long) As Long
+Private Declare PtrSafe Function STM_GetMaxTemp_ Lib "Steam97a.dll" Alias "STM_GetMaxTemp" () As Double
+Private Declare PtrSafe Function STM_GetMinTemp_ Lib "Steam97a.dll" Alias "STM_GetMinTemp" () As Double
+Private Declare PtrSafe Function STM_GetMaxPress_ Lib "Steam97a.dll" Alias "STM_GetMaxPress" () As Double
+Private Declare PtrSafe Function STM_GetMinPress_ Lib "Steam97a.dll" Alias "STM_GetMinPress" () As Double
+Private Declare PtrSafe Function STM_SetTempUnit_ Lib "Steam97a.dll" Alias "STM_SetTempUnit" (ByVal u As Long) As Long
+Private Declare PtrSafe Function STM_SetPressUnit_ Lib "Steam97a.dll" Alias "STM_SetPressUnit" (ByVal u As Long) As Long
+Private Declare PtrSafe Function STM_SetEnthalUnit_ Lib "Steam97a.dll" Alias "STM_SetEnthalUnit" (ByVal u As Long) As Long
+Private Declare PtrSafe Function STM_SetEntroUnit_ Lib "Steam97a.dll" Alias "STM_SetEntroUnit" (ByVal u As Long) As Long
+Private Declare PtrSafe Function STM_SetDensityUnit_ Lib "Steam97a.dll" Alias "STM_SetDensityUnit" (ByVal u As Long) As Long
+Private Declare PtrSafe Function STM_SetWetDryUnit_ Lib "Steam97a.dll" Alias "STM_SetWetDryUnit" (ByVal u As Long) As Long
+Private Declare PtrSafe Function STM_SetHCUnit_ Lib "Steam97a.dll" Alias "STM_SetHCUnit" (ByVal u As Long) As Long
+
+Private Declare PtrSafe Function STM_sPt_ Lib "Steam97a.dll" Alias "STM_sPt" (ByVal t As Double) As Double
+Private Declare PtrSafe Function STM_sTp_ Lib "Steam97a.dll" Alias "STM_sTp" (ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_sRt_ Lib "Steam97a.dll" Alias "STM_sRt" (ByVal t As Double) As Double
+Private Declare PtrSafe Function STM_sHtx_ Lib "Steam97a.dll" Alias "STM_sHtx" (ByVal t As Double, ByVal x As Double) As Double
+Private Declare PtrSafe Function STM_sDtx_ Lib "Steam97a.dll" Alias "STM_sDtx" (ByVal t As Double, ByVal x As Double) As Double
+Private Declare PtrSafe Function STM_sHps_ Lib "Steam97a.dll" Alias "STM_sHps" (ByVal p As Double, ByVal s As Double) As Double
+Private Declare PtrSafe Function STM_sXps_ Lib "Steam97a.dll" Alias "STM_sXps" (ByVal p As Double, ByVal s As Double) As Double
+Private Declare PtrSafe Function STM_sStx_ Lib "Steam97a.dll" Alias "STM_sStx" (ByVal t As Double, ByVal x As Double) As Double
+Private Declare PtrSafe Function STM_sXph_ Lib "Steam97a.dll" Alias "STM_sXph" (ByVal p As Double, ByVal h As Double) As Double
+
+Private Declare PtrSafe Function STM_nDtp_ Lib "Steam97a.dll" Alias "STM_nDtp" (ByVal t As Double, ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_nHtp_ Lib "Steam97a.dll" Alias "STM_nHtp" (ByVal t As Double, ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_nStp_ Lib "Steam97a.dll" Alias "STM_nStp" (ByVal t As Double, ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_nCPtp_ Lib "Steam97a.dll" Alias "STM_nCPtp" (ByVal t As Double, ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_nCVtp_ Lib "Steam97a.dll" Alias "STM_nCVtp" (ByVal t As Double, ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_nTps_ Lib "Steam97a.dll" Alias "STM_nTps" (ByVal p As Double, ByVal s As Double) As Double
+Private Declare PtrSafe Function STM_nTph_ Lib "Steam97a.dll" Alias "STM_nTph" (ByVal p As Double, ByVal h As Double) As Double
+Private Declare PtrSafe Function STM_IsSat_ps_ Lib "Steam97a.dll" Alias "STM_IsSat_ps" (ByVal p As Double, ByVal s As Double) As Long
+Private Declare PtrSafe Function STM_IsSat_ph_ Lib "Steam97a.dll" Alias "STM_IsSat_ph" (ByVal p As Double, ByVal h As Double) As Long
+Private Declare PtrSafe Function STM_nWtp_ Lib "Steam97a.dll" Alias "STM_nWtp" (ByVal t As Double, ByVal p As Double) As Double
+Private Declare PtrSafe Function STM_nKtp_ Lib "Steam97a.dll" Alias "STM_nKtp" (ByVal t As Double, ByVal p As Double) As Double
+
+'定数
+Public Const U_KELVIN       As Integer = 1
+Public Const U_CELSIUS      As Integer = 2
+Public Const U_FAHRENHEIT   As Integer = 3
+Public Const U_PASCAL       As Integer = 11
+Public Const U_MPASCAL      As Integer = 12
+Public Const U_KGCM2A       As Integer = 13
+Public Const U_KGCM2G       As Integer = 14
+Public Const U_MMHGA        As Integer = 15
+Public Const U_MMHGG        As Integer = 16
+Public Const U_ATMA         As Integer = 17
+Public Const U_ATMG         As Integer = 18
+Public Const U_HPASCAL      As Integer = 19
+Public Const U_PASCALG      As Integer = 20
+Public Const U_MPASCALG     As Integer = 21
+Public Const U_JKG          As Integer = 31
+Public Const U_KJKG         As Integer = 32
+Public Const U_KCALKG       As Integer = 33
+Public Const U_JKGK         As Integer = 51
+Public Const U_KJKGK        As Integer = 52
+Public Const U_KCALKGK      As Integer = 53
+Public Const U_M3KG         As Integer = 71
+Public Const U_KGM3         As Integer = 72
+Public Const U_WET          As Integer = 91
+Public Const U_DRY          As Integer = 92
+Public Const U_HCJKGK       As Integer = 101
+Public Const U_HCKJKGK      As Integer = 102
+Public Const U_HCKCALKGK    As Integer = 103
+
+'======================================
+' Public ラッパー関数群
+'======================================
+
+' バージョン取得
+Public Function STM_GetDllVer(ByVal n As Long) As Long
+    Application.Volatile
+    STM_GetDllVer = STM_GetDllVer_(n)
+End Function
+
+' 範囲取得
+Public Function STM_GetMaxTemp() As Double
+    Application.Volatile
+    STM_GetMaxTemp = STM_GetMaxTemp_()
+End Function
+
+Public Function STM_GetMinTemp() As Double
+    Application.Volatile
+    STM_GetMinTemp = STM_GetMinTemp_()
+End Function
+
+Public Function STM_GetMaxPress() As Double
+    Application.Volatile
+    STM_GetMaxPress = STM_GetMaxPress_()
+End Function
+
+Public Function STM_GetMinPress() As Double
+    Application.Volatile
+    STM_GetMinPress = STM_GetMinPress_()
+End Function
+
+' 単位設定
+Public Function STM_SetTempUnit(ByVal u As Long) As Long
+    STM_SetTempUnit = STM_SetTempUnit_(u)
+End Function
+
+Public Function STM_SetPressUnit(ByVal u As Long) As Long
+    STM_SetPressUnit = STM_SetPressUnit_(u)
+End Function
+
+Public Function STM_SetEnthalUnit(ByVal u As Long) As Long
+    STM_SetEnthalUnit = STM_SetEnthalUnit_(u)
+End Function
+
+Public Function STM_SetEntroUnit(ByVal u As Long) As Long
+    STM_SetEntroUnit = STM_SetEntroUnit_(u)
+End Function
+
+Public Function STM_SetDensityUnit(ByVal u As Long) As Long
+    STM_SetDensityUnit = STM_SetDensityUnit_(u)
+End Function
+
+Public Function STM_SetWetDryUnit(ByVal u As Long) As Long
+    STM_SetWetDryUnit = STM_SetWetDryUnit_(u)
+End Function
+
+Public Function STM_SetHCUnit(ByVal u As Long) As Long
+    STM_SetHCUnit = STM_SetHCUnit_(u)
+End Function
+
+' 飽和蒸気性質
+Public Function STM_sPt(ByVal t As Double) As Double
+    Application.Volatile
+    STM_sPt = STM_sPt_(t)
+End Function
+
+Public Function STM_sTp(ByVal p As Double) As Double
+    Application.Volatile
+    STM_sTp = STM_sTp_(p)
+End Function
+
+Public Function STM_sRt(ByVal t As Double) As Double
+    Application.Volatile
+    STM_sRt = STM_sRt_(t)
+End Function
+
+Public Function STM_sHtx(ByVal t As Double, ByVal x As Double) As Double
+    Application.Volatile
+    STM_sHtx = STM_sHtx_(t, x)
+End Function
+
+Public Function STM_sDtx(ByVal t As Double, ByVal x As Double) As Double
+    Application.Volatile
+    STM_sDtx = STM_sDtx_(t, x)
+End Function
+
+Public Function STM_sHps(ByVal p As Double, ByVal s As Double) As Double
+    Application.Volatile
+    STM_sHps = STM_sHps_(p, s)
+End Function
+
+Public Function STM_sXps(ByVal p As Double, ByVal s As Double) As Double
+    Application.Volatile
+    STM_sXps = STM_sXps_(p, s)
+End Function
+
+Public Function STM_sStx(ByVal t As Double, ByVal x As Double) As Double
+    Application.Volatile
+    STM_sStx = STM_sStx_(t, x)
+End Function
+
+Public Function STM_sXph(ByVal p As Double, ByVal h As Double) As Double
+    Application.Volatile
+    STM_sXph = STM_sXph_(p, h)
+End Function
+
+' 過熱/圧縮蒸気性質
+Public Function STM_nDtp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nDtp = STM_nDtp_(t, p)
+End Function
+
+Public Function STM_nHtp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nHtp = STM_nHtp_(t, p)
+End Function
+
+Public Function STM_nStp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nStp = STM_nStp_(t, p)
+End Function
+
+Public Function STM_nCPtp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nCPtp = STM_nCPtp_(t, p)
+End Function
+
+Public Function STM_nCVtp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nCVtp = STM_nCVtp_(t, p)
+End Function
+
+Public Function STM_nTps(ByVal p As Double, ByVal s As Double) As Double
+    Application.Volatile
+    STM_nTps = STM_nTps_(p, s)
+End Function
+
+Public Function STM_nTph(ByVal p As Double, ByVal h As Double) As Double
+    Application.Volatile
+    STM_nTph = STM_nTph_(p, h)
+End Function
+
+Public Function STM_IsSat_ps(ByVal p As Double, ByVal s As Double) As Long
+    Application.Volatile
+    STM_IsSat_ps = STM_IsSat_ps_(p, s)
+End Function
+
+Public Function STM_IsSat_ph(ByVal p As Double, ByVal h As Double) As Long
+    Application.Volatile
+    STM_IsSat_ph = STM_IsSat_ph_(p, h)
+End Function
+
+Public Function STM_nWtp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nWtp = STM_nWtp_(t, p)
+End Function
+
+Public Function STM_nKtp(ByVal t As Double, ByVal p As Double) As Double
+    Application.Volatile
+    STM_nKtp = STM_nKtp_(t, p)
+End Function
+
+'======================================
+' 初期化
+'======================================
+Sub Auto_open()
+    Application.Run ("Steam_Init")
+End Sub
+
+Sub Steam_Init()
+    Dim fError As Boolean
+    fError = STM_SetTempUnit(U_CELSIUS)
+    fError = STM_SetPressUnit(U_MPASCAL)
+    fError = STM_SetEnthalUnit(U_KJKG)
+    fError = STM_SetEntroUnit(U_KJKGK)
+    fError = STM_SetDensityUnit(U_M3KG)
+    fError = STM_SetWetDryUnit(U_WET)
+    fError = STM_SetHCUnit(U_HCJKGK)
+    Calculate
+End Sub

@@ -1,0 +1,27 @@
+# ビルド出力（中間ファイル）
+x64/Release/*.obj
+x64/Release/*.iobj
+x64/Release/*.ipdb
+x64/Release/*.res
+x64/Release/*.recipe
+x64/Debug/
+Steam97/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.opensdf
+*.sdf
+
+# 一時ファイル
+~$*.xlsm
+
+# 旧バージョンファイル
+Steam97_New.dll
+蒸気関数M_新DLL版.txt
+蒸気関数M_型修正版.txt
+蒸気関数M_修正版.txt
+蒸気関数M_フルパス版.txt
+蒸気関数M_テスト版.txt
+蒸気関数M.txt

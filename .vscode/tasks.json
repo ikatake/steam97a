@@ -1,0 +1,87 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Steam97.dll (Release x64)",
+            "type": "shell",
+            "command": "&'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\Launch-VsDevShell.ps1'; msbuild",
+            "args": [
+                "Steam97.sln",
+                "/p:Configuration=Release",
+                "/p:Platform=x64",
+                "/v:minimal"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Steam97.dll (Debug x64)",
+            "type": "shell",
+            "command": "&'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\Launch-VsDevShell.ps1'; msbuild",
+            "args": [
+                "Steam97.sln",
+                "/p:Configuration=Debug",
+                "/p:Platform=x64",
+                "/v:minimal"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Steam97.dll (Release Win32)",
+            "type": "shell",
+            "command": "&'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\Launch-VsDevShell.ps1'; msbuild",
+            "args": [
+                "Steam97.sln",
+                "/p:Configuration=Release",
+                "/p:Platform=Win32",
+                "/v:minimal"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean Steam97",
+            "type": "shell",
+            "command": "&'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\Launch-VsDevShell.ps1'; msbuild",
+            "args": [
+                "Steam97.sln",
+                "/t:Clean",
+                "/p:Configuration=Release",
+                "/p:Platform=x64"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Steam97.dll (Alternative - vswhere)",
+            "type": "shell",
+            "command": "$vsPath = & \"${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -property installationPath; if ($vsPath) { & \"$vsPath\\Common7\\Tools\\Launch-VsDevShell.ps1\"; msbuild Steam97.sln /p:Configuration=Release /p:Platform=x64 /v:minimal } else { Write-Error 'Visual Studio not found' }",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

@@ -1,0 +1,51 @@
+;/*********************************************************/
+;/****	Steam97.DLL関数群					**/
+;/****	実用国際状態式（1997年）			**/
+;/*********************************************************/
+;
+;/*
+;   This DEF file is for Steam97.c
+;*/
+LIBRARY    STEAM97
+
+EXPORTS
+	STM_GetDllVer	@1	
+;
+	STM_SetTempUnit	@5
+	STM_SetPressUnit	@6	
+	STM_SetEnthalUnit	@7
+	STM_SetEntroUnit	@8
+	STM_SetDensityUnit	@9	
+	STM_SetWetDryUnit	@10
+	STM_SetHCUnit		@11
+;
+	STM_GetMaxTemp		@21
+	STM_GetMinTemp		@22
+	STM_GetMaxPress		@23
+	STM_GetMinPress		@24
+;
+	STM_sPt		@31
+	STM_sTp		@32
+	STM_sRt		@33
+	STM_sHtx	@34	
+	STM_sDtx	@35	
+	STM_sHps	@36	
+	STM_sXps	@37	
+	STM_sStx	@38	
+	STM_sXph	@39	
+;
+	STM_nDtp	@51	
+	STM_nHtp	@52	
+	STM_nStp	@53	
+	STM_nCPtp	@54	
+	STM_nCVtp	@55	
+	STM_nTps	@56	
+	STM_nTph	@57	
+;	Sep./2000 appended
+	STM_IsSat_ps	@61
+	STM_IsSat_ph	@62
+;	Nov./2000 append
+	STM_nWtp	@71
+	STM_nKtp	@72
+;	@の序数はVersionが変わっても変更しないこと。
+;
